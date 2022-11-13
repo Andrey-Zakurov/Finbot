@@ -1,0 +1,13 @@
+*.db
+*.save
+.idea
+__pycache__
+dbase.b
+runbot.sh
+readme.txt
+Dbase.db
+quests.txt
+.dea
+venv
+pycache
+starv
