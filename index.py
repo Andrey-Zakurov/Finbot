@@ -32,19 +32,19 @@ def is_user_dec(func):
 
 
 
-#  определение типа операции
-def query_analysis(message):
+#
+def query_analysis_and_create_tuple_for_db(message):
 
-    if message.text[0] in '-+':
-        data = message.text.strip(' ').split(' ', 2)
+    text = message.text.strip()
+    ret = []
+    if text[0] in '+-':
+        ret = [word.strip() for word in text[1:].strip().split(' ', 1)]
+        ret.insert(0, text[0])
+        ret.append(str(message.date))
+        print(ret)
+        if len(ret) == 4:
+            return tuple(ret)
 
-        if data[2].isnumeric() and not data[1].isnumeric():
-            data[1], data[2] = int(data[2]), data[1]
-
-        data[1] = int(data[1])
-        data.append(str(message.date))
-
-        return data
 
 
 
@@ -57,12 +57,20 @@ async def enter_help_command(message):
     await message.reply(text)
 
 
+# views expenses
+@dp.message_handler(commands=['expenses'])
+@is_user_dec
+async def enter_start_bot_dialog(message: types.Message):
+    exp = db.get_list_expens()
+    print(exp)
+    await message.reply(exp)
+
+
 @dp.message_handler()
 @is_user_dec
 async def enter_start_bot_dialog(message: types.Message):
 
-    data = query_analysis(message)
-
+    data =  query_analysis_and_create_tuple_for_db(message)
     if data:
 
         if db.write_to_db(data):
@@ -73,7 +81,7 @@ async def enter_start_bot_dialog(message: types.Message):
     else:
         await message.reply('Не понял, введите /help для спраки\nи посмотрите как писать комманды')
 
-
+# Сделай кнопки + - и отчеты(последние пять транзакций, и общее сальдо)
 
 #  программа
 if __name__ == "__main__":
