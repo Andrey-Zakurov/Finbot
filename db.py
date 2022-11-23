@@ -1,5 +1,6 @@
 # Module for works database
 import sqlite3
+from random import randrange
 
 
 # connection DataBase
@@ -10,11 +11,17 @@ except:
     print("No connection base!!!")
 
 
-# Create tables for the application
-def create_tables():
-    database.execute('CREATE TABLE IF NOT EXISTS transactions(type, sum, descript, date_tr)')
-    database.execute('CREATE TABLE IF NOT EXISTS types_tr(id, name_type)')
-    database.commit()
+
+# add testing date from database
+def create_test_date():
+
+    for _ in range(100):
+        cursor.execute("INSERT INTO income (date, income_sum, descript) VALUES ('21.11.2022 22:50', ?, 'test income')", (randrange(500,2000),))
+        database.commit()
+        cursor.execute("INSERT INTO expenses (date, expense_sum, descript) VALUES ('21.11.2022 22:50', ?,'test expense')", (randrange(10,2000),))
+        database.commit()
+    print("testing date add to Database")
+
 
 
 # write in the base
@@ -29,7 +36,34 @@ def write_to_db(data):
         return True
 
 
+# 10 last payments
 def get_list_expens():
 
-    cursor.execute("SELECT date_tr, descript, sum FROM transactions WHERE type = '-'")
-    return cursor.fetchall()
+    cursor.execute("SELECT date_tr, descript, sum FROM transactions WHERE type = '-' LIMIT 10")
+    answer = cursor.fetchall()
+    ret = [" | ".join(list(row)) for row in answer]
+    return '\n'.join(ret)
+
+
+# 10 last line of income
+def get_list_incom():
+
+    cursor.execute("SELECT date_tr, descript, sum FROM transactions WHERE type = '+' LIMIT 10")
+    answer = cursor.fetchall()
+    ret = [" | ".join(list(row)) for row in answer]
+    return '\n'.join(ret)
+
+
+# calculation_balance
+def get_balance():
+
+    # Test variant!!!!!!!!!!!!!!
+    cursor.execute("SELECT SUM(t1.income_sum)-SUM(t2.expense_sum) FROM income AS t1 JOIN expenses AS t2")
+    ret = cursor.fetchone()
+    print(ret)
+
+
+
+if __name__ == "__main__":
+
+    get_balance()

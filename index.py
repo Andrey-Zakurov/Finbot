@@ -10,14 +10,13 @@ import db
 
 
 #  токен управления ботом
-TOKEN: str = getenv('TOKEN')
 #  id  пользователя
+TOKEN: str = getenv('TOKEN')
 ID_USER: int = int(getenv('ID_TLGM'))
-
-
 #  инициализация диспетчера
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot)
+
 
 
 
@@ -43,6 +42,7 @@ def query_analysis_and_create_tuple_for_db(message):
         ret.append(str(message.date))
         print(ret)
         if len(ret) == 4:
+            print(tuple(ret))
             return tuple(ret)
 
 
@@ -60,10 +60,24 @@ async def enter_help_command(message):
 # views expenses
 @dp.message_handler(commands=['expenses'])
 @is_user_dec
-async def enter_start_bot_dialog(message: types.Message):
+async def print_last_expens(message: types.Message):
     exp = db.get_list_expens()
-    print(exp)
     await message.reply(exp)
+
+
+
+# views expenses
+@dp.message_handler(commands=['incom'])
+@is_user_dec
+async def print_last_incom(message: types.Message):
+    exp = db.get_list_incom()
+    await message.reply(exp)
+
+
+@dp.message_handler(commands=['balance'])
+@is_user_dec
+async def print_balance(message: types.Message):
+    return message.reply(db.get_balance())
 
 
 @dp.message_handler()
@@ -82,6 +96,7 @@ async def enter_start_bot_dialog(message: types.Message):
         await message.reply('Не понял, введите /help для спраки\nи посмотрите как писать комманды')
 
 # Сделай кнопки + - и отчеты(последние пять транзакций, и общее сальдо)
+
 
 #  программа
 if __name__ == "__main__":
